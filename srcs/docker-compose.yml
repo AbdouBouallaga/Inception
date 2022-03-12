@@ -1,0 +1,54 @@
+version: '3.7'
+
+networks:
+  inception:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.12.99.0/24
+
+volumes:
+  Wordpress:
+  DB:
+
+services:
+  nginx:
+    container_name: nginx
+    build: requirements/nginx
+    networks:
+      inception:
+          ipv4_address: 10.12.99.3
+    ports:
+      - 443:443
+    restart: always
+    # command: bash -c "nginx && tail -F /var/log/nginx/access.log"
+    volumes:
+      - Wordpress:/var/www/html
+  wordpress:
+    container_name: wordpress
+    build: requirements/wordpress
+    restart: always
+    # image: php:7.4-fpm
+    # command: bash -c "php-fpm"
+    networks:
+      inception:
+          ipv4_address: 10.12.99.2
+    ports:
+      - 9000:9000
+    # command: bash -c "/etc/init.d/php7.4-fpm start && tail -F /var/log/php7.4-fpm.log"
+    volumes:
+      - Wordpress:/var/www/html/
+  mariadb:
+    container_name: mariadb
+    build: requirements/mariadb
+    restart: always
+    ports:
+      - 3306:3306
+    volumes:
+      - DB:/var/lib/mysql
+    networks:
+      inception:
+          ipv4_address: 10.12.99.4
+  
+
+
