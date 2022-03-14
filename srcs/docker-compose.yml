@@ -14,7 +14,8 @@ volumes:
 services:
   nginx:
     container_name: nginx
-    build: requirements/nginx
+    image: nginx_image
+    # build: requirements/nginx
     networks:
       inception:
           ipv4_address: 10.12.99.3
@@ -22,10 +23,12 @@ services:
       - 443:443
     restart: always
     volumes:
-      - /home/babdelka/data/wordpress:/var/www/html:rw
+      - ~/Desktop/data/wordpress:/var/www/html/:rw
+      # - /home/babdelka/data/wordpress:/var/www/html:rw
   wordpress:
     container_name: wordpress
-    build: requirements/wordpress
+    image: wordpress_image
+    # build: requirements/wordpress
     restart: always
     networks:
       inception:
@@ -33,10 +36,12 @@ services:
     ports:
       - 9000:9000
     volumes:
-      - /home/babdelka/data/wordpress:/var/www/html/:rw
+      - ~/Desktop/data/wordpress:/var/www/html/:rw
+      # - /home/babdelka/data/wordpress:/var/www/html/:rw
   mariadb:
     container_name: mariadb
-    build: requirements/mariadb
+    image: mariadb_image
+    # build: requirements/mariadb
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
@@ -45,7 +50,8 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - /home/babdelka/data/db:/var/lib/mysql
+      - ~/Desktop/data/db:/var/lib/mysql:rw
+      # - /home/babdelka/data/db:/var/lib/mysql:rw
     env_file:
       - .env
     # command: mysqld_safe
@@ -54,15 +60,17 @@ services:
           ipv4_address: 10.12.99.4
   phpmyadmin:
     container_name: phpmyadmin
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin:latest
+    # build: requirements/phpmyadmin
     restart: always
-    ports:
-      - 8080:80
     environment:
       - PMA_HOST=10.12.99.4
       - PMA_PORT=3306
+    ports:
+      - 8080:80
     networks:
       inception:
-          ipv4_address: 10.12.99.5
+          ipv4_address: 10.12.99.4
+    
 
 

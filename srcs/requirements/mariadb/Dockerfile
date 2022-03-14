@@ -7,4 +7,4 @@ RUN add-apt-repository 'deb [arch=amd64,i386,arm64,ppc64el] https://mariadb.mirr
 RUN apt update
 RUN apt install mariadb-server mariadb-client -y
 RUN sed -i 's/bind-address            = 127.0.0.1/bind-address            = 0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf
-CMD mysqld_safe
+CMD chown -R mysql:mysql /var/lib/mysql && mysqld_safe
