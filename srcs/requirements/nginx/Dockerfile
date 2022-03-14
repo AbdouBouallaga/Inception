@@ -7,5 +7,5 @@ RUN rm /etc/nginx/sites-available/default
 RUN rm /etc/nginx/sites-enabled/default
 RUN apt install nmap -y
 COPY ./conf/default.conf /etc/nginx/conf.d/default.conf
-# CMD bash -c "nginx && tail -F /var/log/nginx/access.log"
+RUN ulimit -c unlimited
 CMD ["nginx", "-g", "daemon off;"]
