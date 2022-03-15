@@ -7,10 +7,6 @@ networks:
       config:
         - subnet: 10.12.99.0/24
 
-volumes:
-  # Wordpress:
-  DB:
-
 services:
   nginx:
     container_name: nginx
@@ -21,23 +17,23 @@ services:
           ipv4_address: 10.12.99.3
     ports:
       - 443:443
-    restart: always
+    restart: on-failure
     volumes:
-      - ~/Desktop/data/wordpress:/var/www/html/:rw
-      # - /home/babdelka/data/wordpress:/var/www/html:rw
+      # - ~/Desktop/data/wordpress:/var/www/html/:rw
+      - /home/babdelka/data/wordpress:/var/www/html:rw
   wordpress:
     container_name: wordpress
     image: wordpress_image
     # build: requirements/wordpress
-    restart: always
+    restart: on-failure
     networks:
       inception:
           ipv4_address: 10.12.99.2
     ports:
       - 9000:9000
     volumes:
-      - ~/Desktop/data/wordpress:/var/www/html/:rw
-      # - /home/babdelka/data/wordpress:/var/www/html/:rw
+      # - ~/Desktop/data/wordpress:/var/www/html/:rw
+      - /home/babdelka/data/wordpress:/var/www/html/:rw
   mariadb:
     container_name: mariadb
     image: mariadb_image
@@ -46,12 +42,12 @@ services:
       - NET_ADMIN
       - SYS_ADMIN
     # image: mariadb:latest
-    restart: always
+    restart: on-failure
     ports:
       - 3306:3306
     volumes:
-      - ~/Desktop/data/db:/var/lib/mysql:rw
-      # - /home/babdelka/data/db:/var/lib/mysql:rw
+      # - ~/Desktop/data/db:/var/lib/mysql:rw
+      - /home/babdelka/data/db:/var/lib/mysql:rw
     env_file:
       - .env
     # command: mysqld_safe
@@ -70,7 +66,7 @@ services:
       - 8080:80
     networks:
       inception:
-          ipv4_address: 10.12.99.4
+          ipv4_address: 10.12.99.5
     
 
 
