@@ -10,7 +10,7 @@ networks:
 services:
   nginx:
     container_name: nginx
-    image: nginx_image
+    image: nginx
     # build: requirements/nginx
     networks:
       inception:
@@ -23,42 +23,41 @@ services:
       - /home/babdelka/data/wordpress:/var/www/html:rw
   wordpress:
     container_name: wordpress
-    image: wordpress_image
+    image: wordpress
     # build: requirements/wordpress
     restart: on-failure
     networks:
       inception:
           ipv4_address: 10.12.99.2
-    ports:
-      - 9000:9000
+    expose:
+      - 9000
+    # ports:
+    #   - 9000:9000
     volumes:
       # - ~/Desktop/data/wordpress:/var/www/html/:rw
       - /home/babdelka/data/wordpress:/var/www/html/:rw
   mariadb:
     container_name: mariadb
-    image: mariadb_image
-    # build: requirements/mariadb
+    image: mariadb
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
-    # image: mariadb:latest
     restart: on-failure
-    ports:
-      - 3306:3306
+    expose:
+      - 3306
+    # ports:
+    #   - 3306:3306
     volumes:
-      # - ~/Desktop/data/db:/var/lib/mysql:rw
       - /home/babdelka/data/db:/var/lib/mysql:rw
     env_file:
       - .env
-    # command: mysqld_safe
     networks:
       inception:
           ipv4_address: 10.12.99.4
   phpmyadmin:
     container_name: phpmyadmin
-    image: phpmyadmin:latest
-    # build: requirements/phpmyadmin
-    restart: always
+    build: requirements/bonus/PMA
+    restart: on-failure
     environment:
       - PMA_HOST=10.12.99.4
       - PMA_PORT=3306
@@ -67,6 +66,15 @@ services:
     networks:
       inception:
           ipv4_address: 10.12.99.5
+  redis:
+    container_name: redis
+    image: redis
+    restart: on-failure
+    expose:
+      - 6379
+    networks:
+      inception:
+          ipv4_address: 10.12.99.6
     
 
 
