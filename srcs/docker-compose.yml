@@ -1,5 +1,27 @@
 version: '3.7'
 
+volumes:
+  wordpress:
+     driver_opts:
+       type: none
+       o: bind
+       device: /home/babdelka/data/wordpress
+  mariadb:
+     driver_opts:
+       type: none
+       o: bind
+       device: /home/babdelka/data/db
+  grafana:
+     driver_opts:
+       type: none
+       o: bind
+       device: /home/babdelka/data/grafana
+  bonuss_site:
+     driver_opts:
+       type: none
+       o: bind
+       device: /home/babdelka/data/bonus
+
 networks:
   inception:
     driver: bridge
@@ -11,7 +33,6 @@ services:
   nginx:
     container_name: nginx
     image: nginx
-    # build: requirements/nginx
     networks:
       inception:
           ipv4_address: 10.12.99.3
@@ -19,50 +40,48 @@ services:
       - 443:443
     restart: on-failure
     volumes:
-      # - ~/Desktop/data/wordpress:/var/www/html/:rw
-      - /home/babdelka/data/wordpress:/var/www/html:rw
+      - wordpress:/var/www/html:rw
+      - bonuss_site:/var/www/htmlbonus:rw
   wordpress:
+    hostname: wordpress
     container_name: wordpress
     image: wordpress
-    # build: requirements/wordpress
     restart: on-failure
     networks:
       inception:
           ipv4_address: 10.12.99.2
     expose:
       - 9000
-    # ports:
-    #   - 9000:9000
+      - 9100
     volumes:
-      # - ~/Desktop/data/wordpress:/var/www/html/:rw
-      - /home/babdelka/data/wordpress:/var/www/html/:rw
+      - wordpress:/var/www/html:rw
   mariadb:
+    hostname: mariadb
     container_name: mariadb
     image: mariadb
-    cap_add:
-      - NET_ADMIN
-      - SYS_ADMIN
     restart: on-failure
     expose:
       - 3306
-    # ports:
-    #   - 3306:3306
+      - 9100
     volumes:
-      - /home/babdelka/data/db:/var/lib/mysql:rw
+      - mariadb:/var/lib/mysql:rw
     env_file:
       - .env
     networks:
       inception:
           ipv4_address: 10.12.99.4
-  phpmyadmin:
-    container_name: phpmyadmin
-    build: requirements/bonus/PMA
+  grafana:
+    cap_add:
+      - ALL
+    container_name: grafana
+    image: grafana
     restart: on-failure
-    environment:
-      - PMA_HOST=10.12.99.4
-      - PMA_PORT=3306
     ports:
-      - 8080:80
+      - 3000:3000
+    expose:
+      - 9100
+    volumes:
+      - grafana:/grafana:rw
     networks:
       inception:
           ipv4_address: 10.12.99.5
@@ -75,6 +94,27 @@ services:
     networks:
       inception:
           ipv4_address: 10.12.99.6
-    
-
-
+  adminer:
+    container_name: adminer
+    image: adminer
+    restart: on-failure
+    ports:
+      - 8080:443
+    networks:
+      inception:
+          ipv4_address: 10.12.99.7
+  ftp:
+    container_name: ftp
+    image: ftp
+    restart: on-failure
+    ports:
+      - 21:21
+      - 20:20
+    environment:
+      - NEWUSER=$NEWUSER
+      - NEWUSER_PASSWORD=$NEWUSER_PASSWORD 
+    volumes:
+      - wordpress:/wp/:rw
+    networks:
+      inception:
+          ipv4_address: 10.12.99.8

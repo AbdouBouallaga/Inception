@@ -7,4 +7,8 @@ RUN add-apt-repository 'deb [arch=amd64,i386,arm64,ppc64el] https://mariadb.mirr
 RUN apt update
 RUN apt install mariadb-server mariadb-client -y
 RUN sed -i 's/bind-address            = 127.0.0.1/bind-address            = 0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf
-CMD mysqld_safe --user=root --console
+RUN apt install -y wget
+RUN wget https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
+RUN tar -xvf node_exporter-1.3.1.linux-amd64.tar.gz
+RUN mv node_exporter-1.3.1.linux-amd64/node_exporter /usr/local/bin/node_exporter
+CMD node_exporter & mysqld_safe --user=root --console && fg 

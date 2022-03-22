@@ -8,19 +8,23 @@ DOCKER_COMPOSE = $(SUDO) docker-compose
 WP = wordpress
 MARIADB = mariadb
 NGINX = nginx
-PMA = phpmyadmin
+GRAFANA = grafana
 REDIS = redis
-
+ADMINER = adminer
+FTP = ftp
 
 all : build
 	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) up -d
-	@-$(DOCKER) exec $(WP_CONTAINER) /bin/bash /root/install_wordpress.sh
+	@-$(DOCKER) exec $(WP) /bin/bash /root/install_wordpress.sh
 
 build:
 	$(DOCKER) build -t $(WP) $(DOCKER_FILES_DIR)wordpress
 	$(DOCKER) build -t $(MARIADB) $(DOCKER_FILES_DIR)mariadb
 	$(DOCKER) build -t $(NGINX) $(DOCKER_FILES_DIR)nginx
 	$(DOCKER) build -t $(REDIS) $(DOCKER_FILES_DIR)bonus/redis
+	$(DOCKER) build -t $(GRAFANA) $(DOCKER_FILES_DIR)bonus/grafana
+	$(DOCKER) build -t $(ADMINER) $(DOCKER_FILES_DIR)bonus/adminer
+	$(DOCKER) build -t $(FTP) $(DOCKER_FILES_DIR)bonus/ftp
 
 setup_env:
 	@if test -f /usr/bin/docker; \
@@ -40,11 +44,12 @@ setup_env:
 	fi
 
 clean :
-	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) down
-# 	$(DOCKER) rm -f $(WP_CONTAINER) $(MARIADB_CONTAINER) $(NGINX_CONTAINER)
-
+	-$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) down
 
 fclean: clean
-	$(DOCKER) rmi $(WP) $(MARIADB) $(NGINX) $(REDIS) -f
+	-$(DOCKER) rmi $(WP) $(MARIADB) $(NGINX) $(REDIS) $(GRAFANA) $(FTP) $(ADMINER) -f
+	-$(DOCKER) volume rm srcs_wordpress
+	-$(DOCKER) volume rm srcs_grafana
+	-$(DOCKER) volume rm srcs_mariadb
 
 re: clean all
